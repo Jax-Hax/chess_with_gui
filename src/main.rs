@@ -1,7 +1,8 @@
 use ggez::{
     event,
     glam::*,
-    graphics::{self, Color},
+    graphics::{self, Color,MeshBuilder},
+    conf::{WindowMode, WindowSetup},
     Context, GameResult,
 };
 mod board;
@@ -10,6 +11,7 @@ use board::{init_board,Tile,PieceColor,PieceType,Piece};
 struct MainState {
     pos_x: f32,
     circle: graphics::Mesh,
+
 }
 
 impl MainState {
@@ -48,7 +50,10 @@ impl event::EventHandler<ggez::GameError> for MainState {
 
 pub fn main() -> GameResult {
     let mut chessboard = init_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR".to_string());
-    let cb = ggez::ContextBuilder::new("Chess", "Jax Bulbrook");
+    let window_setup = WindowSetup::default().title("Chessboard");
+    let window_mode = WindowMode::default().fullscreen_type(ggez::conf::FullscreenType::Desktop);
+    let cb = ggez::ContextBuilder::new("Chess", "Jax Bulbrook").window_setup(window_setup)
+    .window_mode(window_mode);
     let (mut ctx, event_loop) = cb.build()?;
     let state = MainState::new(&mut ctx)?;
     event::run(ctx, event_loop, state)
