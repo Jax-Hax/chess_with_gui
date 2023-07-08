@@ -90,7 +90,7 @@ pub fn init_board(fen_string: String) -> [[Tile; 8]; 8]{
             };
 
             if col < 8 {
-                chessboard[col][row] = tile;
+                chessboard[col][7 - row] = tile;
                 col += 1;
             }
         }

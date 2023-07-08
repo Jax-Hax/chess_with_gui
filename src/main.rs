@@ -18,6 +18,12 @@ struct MainState {
     knight_w: Image,
     bishop_w: Image,
     pawn_w: Image,
+    king_b: Image,
+    queen_b: Image,
+    rook_b: Image,
+    knight_b: Image,
+    bishop_b: Image,
+    pawn_b: Image,
 }
 
 impl MainState {
@@ -29,6 +35,12 @@ impl MainState {
         let knight_w = Image::from_path(ctx, "/knight_w.png")?;
         let bishop_w = Image::from_path(ctx, "/bishop_w.png")?;
         let pawn_w = Image::from_path(ctx, "/pawn_w.png")?;
+        let king_b = Image::from_path(ctx, "/king_b.png")?;
+        let queen_b = Image::from_path(ctx, "/queen_b.png")?;
+        let rook_b = Image::from_path(ctx, "/rook_b.png")?;
+        let knight_b = Image::from_path(ctx, "/knight_b.png")?;
+        let bishop_b = Image::from_path(ctx, "/bishop_b.png")?;
+        let pawn_b = Image::from_path(ctx, "/pawn_b.png")?;
         const TILE_SIZE: f32 = 100.0;
         let mut mesh_builder = MeshBuilder::new();
         for row in 0..8 {
@@ -47,7 +59,7 @@ impl MainState {
             }
         }
         let mesh: Mesh = Mesh::from_data(ctx, mesh_builder.build());
-        let state = MainState { chessboard: board, board: mesh, king_w: king_w,queen_w: queen_w,rook_w: rook_w,knight_w: knight_w,bishop_w: bishop_w,pawn_w: pawn_w};
+        let state = MainState { chessboard: board, board: mesh, king_w: king_w,queen_w: queen_w,rook_w: rook_w,knight_w: knight_w,bishop_w: bishop_w,pawn_w: pawn_w,king_b: king_b,queen_b: queen_b,rook_b: rook_b,knight_b: knight_b,bishop_b: bishop_b,pawn_b: pawn_b};
         Ok(state)
     }
 }
@@ -82,27 +94,27 @@ fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas)
         Piece {
             color: PieceColor::Black,
             piece_type: PieceType::King,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.king_b,draw_param),
         Piece {
             color: PieceColor::Black,
             piece_type: PieceType::Pawn,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.pawn_b,draw_param),
         Piece {
             color: PieceColor::Black,
             piece_type: PieceType::Queen,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.queen_b,draw_param),
         Piece {
             color: PieceColor::Black,
             piece_type: PieceType::Knight,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.knight_b,draw_param),
         Piece {
             color: PieceColor::Black,
             piece_type: PieceType::Rook,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.rook_b,draw_param),
         Piece {
             color: PieceColor::Black,
             piece_type: PieceType::Bishop,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.bishop_b,draw_param),
         Piece {
             color: PieceColor::White,
             piece_type: PieceType::King,
@@ -110,27 +122,26 @@ fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas)
         Piece {
             color: PieceColor::White,
             piece_type: PieceType::Pawn,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.pawn_w,draw_param),
         Piece {
             color: PieceColor::White,
             piece_type: PieceType::Queen,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.queen_w,draw_param),
         Piece {
             color: PieceColor::White,
             piece_type: PieceType::Knight,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.knight_w,draw_param),
         Piece {
             color: PieceColor::White,
             piece_type: PieceType::Rook,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.rook_w,draw_param),
         Piece {
             color: PieceColor::White,
             piece_type: PieceType::Bishop,
-        } => canvas.draw(&state.king_w,draw_param),
+        } => canvas.draw(&state.bishop_w,draw_param),
     }
 }
 pub fn main() -> GameResult {
-    let mut chessboard = init_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR".to_string());
     let resource_dir = path::PathBuf::from("./resources");
     let window_setup = WindowSetup::default().title("Chessboard");
     let window_mode = WindowMode::default().fullscreen_type(ggez::conf::FullscreenType::Desktop);
