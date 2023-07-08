@@ -1,5 +1,5 @@
 use ggez::{
-    event,
+    event::{self, MouseButton},
     glam::*,
     graphics::{self, Color,MeshBuilder, DrawMode, Rect, Mesh, DrawParam,Image, Canvas},
     conf::{WindowMode, WindowSetup},
@@ -54,7 +54,7 @@ impl MainState {
                     Color::from_rgb(181, 136, 99) // Dark tile color
                 };
 
-                let rect = Rect::new(x, y, TILE_SIZE, TILE_SIZE);
+                let rect = Rect::new(x+100.0, y+100.0, TILE_SIZE, TILE_SIZE);
                 mesh_builder.rectangle(DrawMode::fill(), rect, color)?;
             }
         }
@@ -87,9 +87,22 @@ impl event::EventHandler<ggez::GameError> for MainState {
         canvas.finish(ctx)?;
         Ok(())
     }
+    fn mouse_button_down_event(&mut self, ctx: &mut Context, btn: MouseButton, x: f32, y: f32) -> GameResult{
+        println!("{},{}",x,y);
+        match btn {
+            MouseButton::Left => {
+                
+            }
+
+            _ => (),
+        }
+        Ok(())
+    }
 }
 fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas){
-    let draw_param = DrawParam::default().dest([x, y]);
+    const OFFSET_X: f32 = 100.0 + 15.0;
+    const OFFSET_Y: f32 = 100.0 + 10.0; //screen offset plus offset to make the images align with the tiles
+    let draw_param = DrawParam::default().dest([x+OFFSET_X, y+OFFSET_Y]);
     match piece {
         Piece {
             color: PieceColor::Black,
@@ -144,7 +157,7 @@ fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas)
 pub fn main() -> GameResult {
     let resource_dir = path::PathBuf::from("./resources");
     let window_setup = WindowSetup::default().title("Chessboard");
-    let window_mode = WindowMode::default().fullscreen_type(ggez::conf::FullscreenType::Desktop);
+    let window_mode = WindowMode::default().dimensions(1000.0, 1000.0);
     let cb = ggez::ContextBuilder::new("Chess", "Jax Bulbrook").window_setup(window_setup).window_mode(window_mode);
     let cb = cb.add_resource_path(resource_dir);
     let (mut ctx, event_loop) = cb.build()?;
