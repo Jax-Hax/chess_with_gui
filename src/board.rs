@@ -26,15 +26,15 @@ pub enum Tile {
 
 pub fn init_board(fen_string: String) -> [[Tile; 8]; 8]{
     let mut chessboard: [[Tile; 8]; 8] = [[Tile::Nothing; 8]; 8];
-    let mut rank = 7;
-    let mut file = 0;
+    let mut row = 7;
+    let mut col = 0;
     for c in fen_string.chars() {
         if c == '/' {
-            rank -= 1;
-            file = 0;
+            row -= 1;
+            col = 0;
         } else if c.is_digit(10) {
             let empty_count: usize = c.to_digit(10).unwrap() as usize;
-            file += empty_count;
+            col += empty_count;
         } else {
             // Handle the piece placement
             let tile = match c {
@@ -89,9 +89,9 @@ pub fn init_board(fen_string: String) -> [[Tile; 8]; 8]{
                 _ => Tile::Nothing,
             };
 
-            if file < 8 {
-                chessboard[rank][file] = tile;
-                file += 1;
+            if col < 8 {
+                chessboard[col][row] = tile;
+                col += 1;
             }
         }
     }
