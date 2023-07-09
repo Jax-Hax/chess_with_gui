@@ -113,6 +113,16 @@ impl event::EventHandler<ggez::GameError> for MainState {
         }
         Ok(())
     }
+    fn mouse_button_up_event(&mut self, ctx: &mut Context, btn: MouseButton, x: f32, y: f32) -> GameResult{
+        match btn {
+            MouseButton::Left => {
+                check_if_can_place_piece(x,y,self);
+            }
+
+            _ => (),
+        }
+        Ok(())
+    }
 }
 fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas, is_mouse_coords: bool){
     const OFFSET_X: f32 = 100.0 + 15.0;
@@ -184,6 +194,29 @@ fn check_if_touching_piece(x: f32,y: f32,state: &mut MainState){
             }
         }
     }
+}
+fn check_if_can_place_piece(x: f32,y: f32,state: &mut MainState){
+    //check if holding, if so assign pos1. Then check if mouse coords lands on a tile, if so pass it into a check function.
+    //that check function has to check first if it is either opposite color or empty tile. Then, it does all the valid checks. If it is valid, replace the new tile with it and get rid of the old one.
+    match state.holding{
+        HoldingPiece::True(x_pos, y_pos) => {},
+        _ => {}
+    }
+    if x >= 115.0 && x <= 885.0 && y >= 105.0 && y <= 885.0{
+        //in bounds of the board
+        let x = x / 100.0;
+        let y = y / 100.0;
+        if x % 1.0 >= 0.25 &&  x % 1.0 <= 0.7 &&  y % 1.0 >= 0.2 &&  y % 1.0 <= 0.75{
+            //In bounds of a square
+            let x = x.floor() as usize - 1;
+            let y = y.floor() as usize - 1;
+            match state.chessboard[x][y] {
+                Tile::Something(_) => {state.holding = HoldingPiece::True(x, y)},
+                _ => {},
+            }
+        }
+    }
+    state.holding = HoldingPiece::False;
 }
 pub fn main() -> GameResult {
     let resource_dir = path::PathBuf::from("./resources");
