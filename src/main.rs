@@ -132,54 +132,56 @@ fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas,
         Piece {
             color: PieceColor::Black,
             piece_type: PieceType::King,
+            ..
         } => canvas.draw(&state.king_b,draw_param),
         Piece {
             color: PieceColor::Black,
-            piece_type: PieceType::Pawn,
+            piece_type: PieceType::Pawn,..
         } => canvas.draw(&state.pawn_b,draw_param),
         Piece {
             color: PieceColor::Black,
-            piece_type: PieceType::Queen,
+            piece_type: PieceType::Queen,..
         } => canvas.draw(&state.queen_b,draw_param),
         Piece {
             color: PieceColor::Black,
-            piece_type: PieceType::Knight,
+            piece_type: PieceType::Knight,..
         } => canvas.draw(&state.knight_b,draw_param),
         Piece {
             color: PieceColor::Black,
-            piece_type: PieceType::Rook,
+            piece_type: PieceType::Rook,..
         } => canvas.draw(&state.rook_b,draw_param),
         Piece {
             color: PieceColor::Black,
-            piece_type: PieceType::Bishop,
+            piece_type: PieceType::Bishop,..
         } => canvas.draw(&state.bishop_b,draw_param),
         Piece {
             color: PieceColor::White,
-            piece_type: PieceType::King,
+            piece_type: PieceType::King,..
         } => canvas.draw(&state.king_w,draw_param),
         Piece {
             color: PieceColor::White,
-            piece_type: PieceType::Pawn,
+            piece_type: PieceType::Pawn,..
         } => canvas.draw(&state.pawn_w,draw_param),
         Piece {
             color: PieceColor::White,
-            piece_type: PieceType::Queen,
+            piece_type: PieceType::Queen,..
         } => canvas.draw(&state.queen_w,draw_param),
         Piece {
             color: PieceColor::White,
-            piece_type: PieceType::Knight,
+            piece_type: PieceType::Knight,..
         } => canvas.draw(&state.knight_w,draw_param),
         Piece {
             color: PieceColor::White,
-            piece_type: PieceType::Rook,
+            piece_type: PieceType::Rook,..
         } => canvas.draw(&state.rook_w,draw_param),
         Piece {
             color: PieceColor::White,
-            piece_type: PieceType::Bishop,
+            piece_type: PieceType::Bishop,..
         } => canvas.draw(&state.bishop_w,draw_param),
     }
 }
 fn check_if_touching_piece(x: f32,y: f32,state: &mut MainState){
+    //TODO - make sure it is checking if it is the right color
     if x >= 115.0 && x <= 885.0 && y >= 105.0 && y <= 885.0{
         //in bounds of the board
         let x = x / 100.0;
@@ -198,8 +200,9 @@ fn check_if_touching_piece(x: f32,y: f32,state: &mut MainState){
 fn check_if_can_place_piece(x: f32,y: f32,state: &mut MainState){
     //check if holding, if so assign pos1. Then check if mouse coords lands on a tile, if so pass it into a check function.
     //that check function has to check first if it is either opposite color or empty tile. Then, it does all the valid checks. If it is valid, replace the new tile with it and get rid of the old one.
+    let pos1: (usize,usize) = (0,0);
     match state.holding{
-        HoldingPiece::True(x_pos, y_pos) => {},
+        HoldingPiece::True(x_pos, y_pos) => {let pos1 = (x_pos,y_pos);},
         _ => {}
     }
     if x >= 115.0 && x <= 885.0 && y >= 105.0 && y <= 885.0{
@@ -210,13 +213,38 @@ fn check_if_can_place_piece(x: f32,y: f32,state: &mut MainState){
             //In bounds of a square
             let x = x.floor() as usize - 1;
             let y = y.floor() as usize - 1;
-            match state.chessboard[x][y] {
-                Tile::Something(_) => {state.holding = HoldingPiece::True(x, y)},
-                _ => {},
-            }
+            let pos2 = (x,y);
+            check_if_valid_move(pos1,pos2,state);
         }
     }
     state.holding = HoldingPiece::False;
+}
+fn check_if_valid_move(pos1: (usize,usize),pos2: (usize,usize),state: &mut MainState){
+    let (col1,row1) = pos1;
+    let (col2,row2) = pos2;
+    let tile1 = state.chessboard[col1][row1];
+    let tile2 = state.chessboard[col2][row2];
+    if row1 == row2 && col1 == col2 {
+        println!("Same tile");
+        return;
+    }
+    if !is_opposite_color_or_none(&tile1, &tile2){
+        return;
+    }
+}
+fn is_opposite_color_or_none(tile1: &Tile, tile2: &Tile) -> bool{
+    match tile1 {
+        Tile::Nothing => {false}, // Empty tile
+        Tile::Something(piece) => {
+            let color1 = piece.color; // Opposite color of the first
+            match tile2 {
+                Tile::Nothing => return true, // Empty tile
+                Tile::Something(piece) => {
+                    return piece.color == color1; // Opposite color of the first
+                }
+            }
+        }
+    }
 }
 pub fn main() -> GameResult {
     let resource_dir = path::PathBuf::from("./resources");
