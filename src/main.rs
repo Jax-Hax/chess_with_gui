@@ -88,10 +88,9 @@ impl event::EventHandler<ggez::GameError> for MainState {
         Ok(())
     }
     fn mouse_button_down_event(&mut self, ctx: &mut Context, btn: MouseButton, x: f32, y: f32) -> GameResult{
-        println!("{},{}",x,y);
         match btn {
             MouseButton::Left => {
-                
+                check_if_touching_piece(x,y,&self);
             }
 
             _ => (),
@@ -152,6 +151,22 @@ fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas)
             color: PieceColor::White,
             piece_type: PieceType::Bishop,
         } => canvas.draw(&state.bishop_w,draw_param),
+    }
+}
+fn check_if_touching_piece(x: f32,y: f32,state: &MainState){
+    if x >= 115.0 && x <= 885.0 && y >= 105.0 && y <= 885.0{
+        //in bounds of the board
+        let x = x / 100.0;
+        let y = y / 100.0;
+        if x % 1.0 >= 0.25 &&  x % 1.0 <= 0.7 &&  y % 1.0 >= 0.2 &&  y % 1.0 <= 0.75{
+            //In bounds of a square
+            let x = x.floor() as usize - 1;
+            let y = y.floor() as usize - 1;
+            match &state.chessboard[x][y] {
+                Tile::Something(piece) => println!("Piece"),
+                _ => {},
+            }
+        }
     }
 }
 pub fn main() -> GameResult {
