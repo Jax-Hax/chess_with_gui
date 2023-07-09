@@ -12,6 +12,7 @@ use board::{init_board,Tile,PieceColor,PieceType,Piece};
 struct MainState {
     chessboard: [[Tile; 8]; 8],
     board: Mesh,
+    holding: HoldingPiece,
     king_w: Image,
     queen_w: Image,
     rook_w: Image,
@@ -25,7 +26,10 @@ struct MainState {
     bishop_b: Image,
     pawn_b: Image,
 }
-
+enum HoldingPiece{
+    False,
+    True(usize, usize), //x,y
+}
 impl MainState {
     fn new(ctx: &mut Context) -> GameResult<MainState> {
         let board = init_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR".to_string());
@@ -59,7 +63,7 @@ impl MainState {
             }
         }
         let mesh: Mesh = Mesh::from_data(ctx, mesh_builder.build());
-        let state = MainState { chessboard: board, board: mesh, king_w: king_w,queen_w: queen_w,rook_w: rook_w,knight_w: knight_w,bishop_w: bishop_w,pawn_w: pawn_w,king_b: king_b,queen_b: queen_b,rook_b: rook_b,knight_b: knight_b,bishop_b: bishop_b,pawn_b: pawn_b};
+        let state = MainState { chessboard: board, board: mesh, holding: HoldingPiece::False, king_w: king_w,queen_w: queen_w,rook_w: rook_w,knight_w: knight_w,bishop_w: bishop_w,pawn_w: pawn_w,king_b: king_b,queen_b: queen_b,rook_b: rook_b,knight_b: knight_b,bishop_b: bishop_b,pawn_b: pawn_b};
         Ok(state)
     }
 }
@@ -77,8 +81,20 @@ impl event::EventHandler<ggez::GameError> for MainState {
             for col in 0..8 {
                 let x = col as f32 * TILE_SIZE;
                 let y = row as f32 * TILE_SIZE;
+                match &self.holding{
+                    HoldingPiece::True(x_pos, y_pos) => {if x_pos == &col && y_pos == &row{
+                        let pos = ctx.mouse.position();
+                        match &self.chessboard[*x_pos][*y_pos] {
+                            Tile::Something(piece) => draw_piece(piece, pos.x, pos.y, self, &mut canvas,true),
+                            _ => {},
+                        }
+                        
+                        continue;
+                    }},
+                    _ => {}
+                }
                 match &self.chessboard[col][row] {
-                    Tile::Something(piece) => draw_piece(piece, x, y, self, &mut canvas),
+                    Tile::Something(piece) => draw_piece(piece, x, y, self, &mut canvas,false),
                     _ => {},
                 }
                 
@@ -90,7 +106,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
     fn mouse_button_down_event(&mut self, ctx: &mut Context, btn: MouseButton, x: f32, y: f32) -> GameResult{
         match btn {
             MouseButton::Left => {
-                check_if_touching_piece(x,y,&self);
+                check_if_touching_piece(x,y,self);
             }
 
             _ => (),
@@ -98,10 +114,10 @@ impl event::EventHandler<ggez::GameError> for MainState {
         Ok(())
     }
 }
-fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas){
+fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas, is_mouse_coords: bool){
     const OFFSET_X: f32 = 100.0 + 15.0;
     const OFFSET_Y: f32 = 100.0 + 10.0; //screen offset plus offset to make the images align with the tiles
-    let draw_param = DrawParam::default().dest([x+OFFSET_X, y+OFFSET_Y]);
+    let draw_param = if !is_mouse_coords{DrawParam::default().dest([x+OFFSET_X, y+OFFSET_Y])} else {DrawParam::default().dest([x-30.0, y-30.0])};
     match piece {
         Piece {
             color: PieceColor::Black,
@@ -153,7 +169,7 @@ fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas)
         } => canvas.draw(&state.bishop_w,draw_param),
     }
 }
-fn check_if_touching_piece(x: f32,y: f32,state: &MainState){
+fn check_if_touching_piece(x: f32,y: f32,state: &mut MainState){
     if x >= 115.0 && x <= 885.0 && y >= 105.0 && y <= 885.0{
         //in bounds of the board
         let x = x / 100.0;
@@ -162,8 +178,8 @@ fn check_if_touching_piece(x: f32,y: f32,state: &MainState){
             //In bounds of a square
             let x = x.floor() as usize - 1;
             let y = y.floor() as usize - 1;
-            match &state.chessboard[x][y] {
-                Tile::Something(piece) => println!("Piece"),
+            match state.chessboard[x][y] {
+                Tile::Something(_) => {state.holding = HoldingPiece::True(x, y)},
                 _ => {},
             }
         }
