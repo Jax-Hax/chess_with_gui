@@ -117,7 +117,7 @@ impl event::EventHandler<ggez::GameError> for MainState {
 fn draw_piece(piece: &Piece, x:f32, y:f32, state:&MainState,canvas: &mut Canvas, is_mouse_coords: bool){
     const OFFSET_X: f32 = 100.0 + 15.0;
     const OFFSET_Y: f32 = 100.0 + 10.0; //screen offset plus offset to make the images align with the tiles
-    let draw_param = if !is_mouse_coords{DrawParam::default().dest([x+OFFSET_X, y+OFFSET_Y])} else {DrawParam::default().dest([x-30.0, y-30.0])};
+    let draw_param = if !is_mouse_coords{DrawParam::default().dest([x+OFFSET_X, y+OFFSET_Y])} else {DrawParam::default().dest([x-35.0, y-35.0])};
     match piece {
         Piece {
             color: PieceColor::Black,
